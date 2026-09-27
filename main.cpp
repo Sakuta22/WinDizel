@@ -1,4 +1,4 @@
-#include "include/WindowSystem/WindowSystem.h"
+#include "WinDizel/WinDizel.h"
 using namespace std;
 
 auto window = WindowSystem::Window::Create();

@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(WindowSystemProject LANGUAGES CXX)
+project(WinDizelProject LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_library(WindowSystem STATIC
+add_library(WinDizel STATIC
     src/Window.cpp
     src/Input/KeypadCodeToString.cpp
     src/Input/MouseCodeToString.cpp
@@ -14,14 +14,14 @@ add_library(WindowSystem STATIC
     src/Utils/Utf.cpp
 )
 
-target_include_directories(WindowSystem
+target_include_directories(WinDizel
     PUBLIC
-        include
+        "${CMAKE_CURRENT_SOURCE_DIR}/include"
     PRIVATE
-        src
+        "${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
 
-target_compile_definitions(WindowSystem
+target_compile_definitions(WinDizel
     PUBLIC
         UNICODE
         _UNICODE
@@ -30,6 +30,6 @@ target_compile_definitions(WindowSystem
         NOMINMAX
 )
 
-add_executable(WindowSystemApp main.cpp)
+add_executable(WinDizelApp main.cpp)
 
-target_link_libraries(WindowSystemApp PRIVATE WindowSystem)
+target_link_libraries(WinDizelApp PRIVATE WinDizel)

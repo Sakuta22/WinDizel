@@ -1,12 +1,14 @@
-#include "../../../../WindowSystem/include/WindowSystem/Events/Event.h"
-#include "../../../../WindowSystem/include/WindowSystem/Events/KeyEvent.h"
-#include "../../../../WindowSystem/include/WindowSystem/Input/KeypadCodes.h"
+#include "WinDizel/Events/Event.h"
+#include "WinDizel/Events/KeyEvent.h"
+#include "WinDizel/Input/KeypadCodes.h"
+#include "WinDizel/Events/MouseEvent.h"
+#include "WinDizel/Input/MouseCodes.h"
+#include "WinDizel/Events/WindowEvent.h"
+
+#include "Utils/Utf.h"
+
 #include "InputTranslation/Keypad.h"
-#include "../../../../WindowSystem/include/WindowSystem/Events/MouseEvent.h"
-#include "../../../../WindowSystem/include/WindowSystem/Input/MouseCodes.h"
 #include "InputTranslation/Mouse.h"
-#include "../../../../WindowSystem/include/WindowSystem/Events/WindowEvent.h"
-#include "../../Utils/Utf.h"
 #include "StyleTranslation/Style.h"
 #include "WindowsWindow.h"
 

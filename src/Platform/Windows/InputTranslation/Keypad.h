@@ -1,6 +1,7 @@
 #pragma once
 #include <Windows.h>
-#include "../../../../include/WindowSystem/Input/KeypadCodes.h"
+
+#include "WinDizel/Input/KeypadCodes.h"
 
 inline WindowSystem::Input::KeypadCode TranslateWin32KeypadToCustom(WPARAM wParam, LPARAM lParam)
 {

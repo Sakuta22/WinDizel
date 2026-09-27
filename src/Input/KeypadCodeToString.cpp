@@ -1,4 +1,4 @@
-#include "../../include/WindowSystem/Input/KeypadCodes.h"
+#include "WinDizel/Input/KeypadCodes.h"
 
 const char* WindowSystem::Input::KeypadCodeToString(KeypadCode keypadCode)
 {

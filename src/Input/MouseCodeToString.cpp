@@ -1,4 +1,4 @@
-#include "../../include/WindowSystem/Input/MouseCodes.h"
+#include "WinDizel/Input/MouseCodes.h"
 
 const char* WindowSystem::Input::MouseCodeToString(MouseCode mouseCode)
 {

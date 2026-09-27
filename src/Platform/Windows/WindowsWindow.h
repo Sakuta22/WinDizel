@@ -3,10 +3,11 @@
 #include <cstdint>
 #include <string>
 #include <bitset>
-#include "../../../include/WindowSystem/Input/KeypadCodes.h"
-#include "../../../include/WindowSystem/Input/MouseCodes.h"
-#include "../../../include/WindowSystem/Core/Window.h"
-#include "../../../include/WindowSystem/Core/WindowProps/WindowProps.h"
+
+#include "WinDizel/Input/KeypadCodes.h"
+#include "WinDizel/Input/MouseCodes.h"
+#include "WinDizel/Core/Window.h"
+#include "WinDizel/Core/WindowProps/WindowProps.h"
 
 namespace WindowSystem {
 

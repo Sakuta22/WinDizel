@@ -1,6 +1,7 @@
 #pragma once
 #include <Windows.h>
-#include "../../../../include/WindowSystem/Core/WindowProps/WindowProps.h"
+
+#include "WinDizel/Core/WindowProps/WindowProps.h"
 
 inline DWORD StyleToWindows(const WindowSystem::WindowProps& props) {
 	using namespace WindowSystem;

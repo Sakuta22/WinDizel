@@ -1,6 +1,7 @@
 #pragma once
 #include <Windows.h>
-#include "../../../../include/WindowSystem/Input/MouseCodes.h"
+
+#include "WinDizel/Input/MouseCodes.h"
 
 inline WindowSystem::Input::MouseCode TranslateWin32MouseToCustom(UINT msg, WPARAM wParam)
 {
