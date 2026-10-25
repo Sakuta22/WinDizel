@@ -1,5 +1,4 @@
 #pragma once
-#include <type_traits>
 #include <cstdint>
 
 #define ENABLE_BITMASK_OPERATORS(Enum) \
@@ -41,7 +40,7 @@ inline constexpr Enum& Disable(Enum& mask, Enum flag) noexcept { \
 inline constexpr Enum& Toggle(Enum& mask, Enum flag) noexcept { \
     return mask ^= flag; \
 }
-
+	
 namespace WindowSystem {
 
 	enum class WindowStyle : std::uint32_t {
@@ -84,8 +83,11 @@ namespace WindowSystem {
 		DropShadow	= 1 << 1,
 		NoClose		= 1 << 2,
 		OwnDC		= 1 << 3,
+		HReDraw		= 1 << 4,
+		VReDraw		= 1 << 5,
 
-		Default		= DoubleClick | OwnDC
+		HVReDraw	= HReDraw | VReDraw,
+		Default		= DoubleClick | OwnDC | HVReDraw
 	};
 	ENABLE_BITMASK_OPERATORS(WindowsSpecStyle);
 

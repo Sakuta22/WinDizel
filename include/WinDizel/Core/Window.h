@@ -4,6 +4,7 @@
 #include "WindowProps/WindowProps.h"
 #include "../Input/KeypadCodes.h"
 #include "../Input/MouseCodes.h"
+#include "../Graphics/Frame.h"
 
 // Forward Declaration
 namespace WindowSystem {
@@ -51,6 +52,10 @@ public:
 	virtual void GetMousePosition(std::int32_t& x, std::int32_t& y) const = 0;
 	virtual std::int32_t GetMousePositionX() const = 0;
 	virtual std::int32_t GetMousePositionY() const = 0;
+
+	// GRAPHICS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	virtual void SetFrame(Graphics::Frame& frame) = 0;
+	// GRAPHICS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	virtual bool ShouldClose() const = 0;
 

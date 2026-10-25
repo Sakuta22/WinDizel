@@ -4,6 +4,7 @@
 #include "WinDizel/Events/MouseEvent.h"
 #include "WinDizel/Input/MouseCodes.h"
 #include "WinDizel/Events/WindowEvent.h"
+#include "WinDizel/Graphics/Frame.h"
 
 #include "Utils/Utf.h"
 
@@ -34,6 +35,8 @@ WindowSystem::WindowsWindow::WindowsWindow(const WindowProps& props)
 
 WindowSystem::WindowsWindow::~WindowsWindow()
 {
+	s_windowCount--;
+	ReleaseFrameBuffer();
 	if (m_hwnd) {
 		DestroyWindow(m_hwnd);
 	}
@@ -265,6 +268,92 @@ std::int32_t WindowSystem::WindowsWindow::GetMousePositionY() const
 	return m_inputState.MousePosY;
 }
 
+void WindowSystem::WindowsWindow::SetFrame(Graphics::Frame& frame)
+{
+	if (!m_hwnd || !frame.IsValid()) {
+		return;
+	}
+
+	std::uint32_t newWidth	= frame.FrameContract.Width;
+	std::uint32_t newHeight = frame.FrameContract.Height;
+
+	if (!m_frameBuffer.MemoryDC || m_frameBuffer.Width != newWidth || m_frameBuffer.Height != newHeight) {
+		ReleaseFrameBuffer();
+
+		HDC windowDC = GetDC(m_hwnd);
+		m_frameBuffer.MemoryDC = CreateCompatibleDC(windowDC);
+
+		BITMAPV4HEADER bmv4i = {};
+		bmv4i.bV4Size			= sizeof(BITMAPV4HEADER);
+		bmv4i.bV4Width			= static_cast<LONG>(newWidth);
+		bmv4i.bV4Height			= -static_cast<LONG>(newHeight);
+		bmv4i.bV4Planes			= 1;
+		switch (frame.FrameContract.PixelType) {
+		case (WindowSystem::Graphics::PixelType::RGBA32):
+			bmv4i.bV4BitCount	= 32;
+			break;
+		}
+		bmv4i.bV4V4Compression	= BI_BITFIELDS;
+		bmv4i.bV4RedMask		= frame.FrameContract.MaskOfRed;
+		bmv4i.bV4GreenMask		= frame.FrameContract.MaskOfGreen;
+		bmv4i.bV4BlueMask		= frame.FrameContract.MaskOfBlue;
+		bmv4i.bV4AlphaMask		= frame.FrameContract.MaskOfAlpha;
+
+		m_frameBuffer.DibBitmap = CreateDIBSection(
+			windowDC,
+			//&bmi,
+			reinterpret_cast<const BITMAPINFO*>(&bmv4i),
+			DIB_RGB_COLORS,
+			&m_frameBuffer.Pixels,
+			nullptr,
+			0
+		);
+
+		ReleaseDC(m_hwnd, windowDC);
+
+		if (!m_frameBuffer.MemoryDC || !m_frameBuffer.DibBitmap || !m_frameBuffer.Pixels) {
+			ReleaseFrameBuffer();
+			return;
+		}
+
+		m_frameBuffer.OldBitmap = static_cast<HBITMAP>(
+			SelectObject(m_frameBuffer.MemoryDC, m_frameBuffer.DibBitmap)
+		);
+		m_frameBuffer.Width		= newWidth;
+		m_frameBuffer.Height	= newHeight;
+	}
+
+	const std::size_t bufferSizeBytes = static_cast<std::size_t>(newWidth) * newHeight * sizeof(std::uint32_t);
+	std::memcpy(m_frameBuffer.Pixels, frame.Data, bufferSizeBytes);
+	m_frameBuffer.HasValidData = true;
+
+	InvalidateRect(m_hwnd, nullptr, FALSE);
+}
+
+void WindowSystem::WindowsWindow::ReleaseFrameBuffer()
+{
+	if (m_frameBuffer.MemoryDC) {
+		if (m_frameBuffer.OldBitmap) {
+			SelectObject(m_frameBuffer.MemoryDC, m_frameBuffer.OldBitmap);
+			m_frameBuffer.OldBitmap = nullptr;
+		}
+
+		if (m_frameBuffer.DibBitmap) {
+			// Вызов DeleteObject также автоматически освободит память, на которую указывал Pixels!
+			DeleteObject(m_frameBuffer.DibBitmap);
+			m_frameBuffer.Pixels = nullptr;
+			m_frameBuffer.DibBitmap = nullptr;
+		}
+
+		DeleteDC(m_frameBuffer.MemoryDC);
+		m_frameBuffer.MemoryDC = nullptr;
+	}
+
+	m_frameBuffer.Width			= 0;
+	m_frameBuffer.Height		= 0;
+	m_frameBuffer.HasValidData	= false;
+}
+
 bool WindowSystem::WindowsWindow::ShouldClose() const
 {
 	return m_shouldClose;
@@ -295,7 +384,7 @@ bool WindowSystem::WindowsWindow::Init()
 	DWORD exStyle	= ExStyleToWindows(m_props);
 
 	RECT rect = { 0, 0, m_props.Width, m_props.Height };
-	AdjustWindowRectEx(&rect, style, FALSE, exStyle);
+ 	AdjustWindowRectEx(&rect, style, FALSE, exStyle);
 
 	m_hwnd = CreateWindowExW(
 		exStyle,
@@ -371,6 +460,46 @@ LRESULT WindowSystem::WindowsWindow::MainWndProc(UINT msg, WPARAM wParam, LPARAM
 	case WM_CLOSE: {
 		WindowSystem::Event::WindowCloseEvent event;
 		m_eventCallback(event);
+		return 0;
+	}
+	case WM_ERASEBKGND: {
+		if (m_frameBuffer.HasValidData &&
+			m_frameBuffer.MemoryDC) {
+			return 1;
+		}
+		break;
+	}
+	case WM_PAINT: {
+		PAINTSTRUCT ps;
+		HDC hdc = BeginPaint(m_hwnd, &ps);
+
+		if (m_frameBuffer.HasValidData &&
+			//m_frameBuffer.MemoryDC &&
+			m_props.Width > 0 &&
+			m_props.Height > 0) {
+			if (m_props.Width == m_frameBuffer.Width &&
+				m_props.Height == m_frameBuffer.Height) {
+				BitBlt(
+					hdc,
+					0, 0, m_props.Width, m_props.Height,
+					m_frameBuffer.MemoryDC,
+					0, 0,
+					SRCCOPY
+				);
+			}
+			else {
+				SetStretchBltMode(hdc, COLORONCOLOR);
+				StretchBlt(
+					hdc,
+					0, 0, m_props.Width, m_props.Height,
+					m_frameBuffer.MemoryDC,
+					0, 0, m_frameBuffer.Width, m_frameBuffer.Height,
+					SRCCOPY
+				);
+			}
+		}
+
+		EndPaint(m_hwnd, &ps);
 		return 0;
 	}
 	case WM_SIZE: {
