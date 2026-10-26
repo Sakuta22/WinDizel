@@ -107,5 +107,13 @@ inline DWORD WndClassStyleToWindows(const WindowSystem::WindowProps& props) {
 		windowsWndClassStyle |= CS_OWNDC;
 	}
 
+	if (HasFlag(specStyle, WindowsSpecStyle::HReDraw)) {
+		windowsWndClassStyle |= CS_HREDRAW;
+	}
+
+	if (HasFlag(specStyle, WindowsSpecStyle::VReDraw)) {
+		windowsWndClassStyle |= CS_VREDRAW;
+	}
+
 	return windowsWndClassStyle;
 }

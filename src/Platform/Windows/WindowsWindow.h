@@ -8,6 +8,7 @@
 #include "WinDizel/Input/MouseCodes.h"
 #include "WinDizel/Core/Window.h"
 #include "WinDizel/Core/WindowProps/WindowProps.h"
+#include "WinDizel/Graphics/Frame.h"
 
 namespace WindowSystem {
 
@@ -38,11 +39,16 @@ public:
 	void Hide() override;
 
 	// INPUT
-	bool IsKeyPressed(Input::KeypadCode key) const;
-	bool IsButtonPressed(Input::MouseCode button) const;
-	void GetMousePosition(std::int32_t& x, std::int32_t& y) const;
-	std::int32_t GetMousePositionX() const;
-	std::int32_t GetMousePositionY() const;
+	bool IsKeyPressed(Input::KeypadCode key) const override;
+	bool IsButtonPressed(Input::MouseCode button) const override;
+	void GetMousePosition(std::int32_t& x, std::int32_t& y) const override;
+	std::int32_t GetMousePositionX() const override;
+	std::int32_t GetMousePositionY() const override;
+
+	// GRAPHICS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	void SetFrame(Graphics::Frame& frame) override;
+	void ReleaseFrameBuffer();
+	// GRAPHICS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	bool ShouldClose() const override;
 
@@ -111,6 +117,18 @@ private:
 		}
 	};
 	SaveWindowState m_saveWindowState;
+
+	// FrameBuffer
+	struct FrameBuffer {
+		HDC				MemoryDC		= nullptr;
+		HBITMAP			DibBitmap		= nullptr;
+		HBITMAP			OldBitmap		= nullptr;
+		void*			Pixels			= nullptr;
+		std::uint32_t	Width			= 0;
+		std::uint32_t	Height			= 0;
+		bool			HasValidData	= false;
+	};
+	FrameBuffer m_frameBuffer;
 };
 
 } // ::WindowSystem

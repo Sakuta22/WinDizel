@@ -14,3 +14,6 @@
 // Input
 #include "Input/KeypadCodes.h"
 #include "Input/MouseCodes.h"
+
+// Graphics
+#include "Graphics/Frame.h"
