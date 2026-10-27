@@ -13,6 +13,9 @@
 #include "StyleTranslation/Style.h"
 #include "WindowsWindow.h"
 
+#include <iostream>
+#include <chrono>
+
 static std::wstring Utf8ToUtf16(const std::string& utf8Str)
 {
 	if (utf8Str.empty()) {
